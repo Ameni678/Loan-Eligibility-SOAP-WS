@@ -1,0 +1,43 @@
+<!-- Endpoint SoapUI : http://localhost:8080/ws  |  WSDL : http://localhost:8080/ws/loanEligibility.wsdl -->
+
+<!-- 1. Eligibilite : client accepte -->
+<loan:CustomerRequest xmlns:loan="http://www.example.com/soap/ws/loanEligibility">
+  <loan:customerName>John</loan:customerName>
+  <loan:age>45</loan:age>
+  <loan:yearlyIncome>300000</loan:yearlyIncome>
+  <loan:cibilScore>780</loan:cibilScore>
+  <loan:employmentMode>GOV</loan:employmentMode>
+</loan:CustomerRequest>
+
+<!-- 2. Eligibilite : client refuse (plusieurs raisons) -->
+<loan:CustomerRequest xmlns:loan="http://www.example.com/soap/ws/loanEligibility">
+  <loan:customerName>Sara</loan:customerName>
+  <loan:age>70</loan:age>
+  <loan:yearlyIncome>100000</loan:yearlyIncome>
+  <loan:cibilScore>400</loan:cibilScore>
+  <loan:employmentMode>UNEMPLOYED</loan:employmentMode>
+</loan:CustomerRequest>
+
+<!-- 3. SOAP Fault : age negatif -->
+<loan:CustomerRequest xmlns:loan="http://www.example.com/soap/ws/loanEligibility">
+  <loan:customerName>Test</loan:customerName>
+  <loan:age>-5</loan:age>
+  <loan:yearlyIncome>300000</loan:yearlyIncome>
+  <loan:cibilScore>700</loan:cibilScore>
+  <loan:employmentMode>GOV</loan:employmentMode>
+</loan:CustomerRequest>
+
+<!-- 4. Simulation de pret -->
+<loan:LoanSimulationRequest xmlns:loan="http://www.example.com/soap/ws/loanEligibility">
+  <loan:amount>300000</loan:amount>
+  <loan:annualRatePercent>9.5</loan:annualRatePercent>
+  <loan:durationMonths>24</loan:durationMonths>
+</loan:LoanSimulationRequest>
+
+<!-- 5. Historique (customerName optionnel) -->
+<loan:LoanHistoryRequest xmlns:loan="http://www.example.com/soap/ws/loanEligibility">
+  <loan:customerName>John</loan:customerName>
+</loan:LoanHistoryRequest>
+
+<!-- 6. Statistiques -->
+<loan:LoanStatsRequest xmlns:loan="http://www.example.com/soap/ws/loanEligibility"/>

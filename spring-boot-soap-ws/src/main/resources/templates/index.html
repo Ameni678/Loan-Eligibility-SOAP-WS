@@ -1,0 +1,125 @@
+<!DOCTYPE html>
+<html lang="fr" xmlns:th="http://www.thymeleaf.org">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Loan Eligibility</title>
+<script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.1/dist/chart.umd.min.js"></script>
+<style>
+  body{font-family:Segoe UI,Arial,sans-serif;background:#f3f6fb;margin:0;color:#1f2d3d}
+  header{background:#1f4e79;color:#fff;padding:18px 32px}
+  header a{color:#9fd0ff}
+  main{max-width:1100px;margin:24px auto;display:grid;grid-template-columns:1fr 1fr;gap:20px;padding:0 16px}
+  .card{background:#fff;border-radius:12px;padding:20px;box-shadow:0 2px 8px rgba(0,0,0,.08)}
+  .full{grid-column:1/-1}
+  label{display:block;margin-top:10px;font-size:14px}
+  input,select{width:100%;padding:8px;border:1px solid #cbd5e1;border-radius:6px;box-sizing:border-box}
+  button{margin-top:14px;background:#4a90d9;color:#fff;border:0;padding:10px 18px;border-radius:6px;cursor:pointer}
+  .ok{background:#e6f7ed;border-left:6px solid #2e9e5b}
+  .ko{background:#fdeaea;border-left:6px solid #d64545}
+  table{width:100%;border-collapse:collapse;font-size:14px}
+  th,td{padding:6px 8px;border-bottom:1px solid #e5eaf1;text-align:left}
+  .badge{padding:2px 8px;border-radius:10px;color:#fff;font-size:12px}
+  .yes{background:#2e9e5b}.no{background:#d64545}
+  .scroll{max-height:300px;overflow:auto}
+</style>
+</head>
+<body>
+<header>
+  <h1>🏦 Évaluation d'éligibilité à un prêt</h1>
+  <small>Service SOAP · WSDL : <a href="/ws/loanEligibility.wsdl">/ws/loanEligibility.wsdl</a></small>
+</header>
+
+<main>
+  <div class="card full" th:if="${error}" style="background:#fff3cd">⚠️ <b th:text="${error}"></b></div>
+
+  <section class="card">
+    <h2>Vérifier l'éligibilité</h2>
+    <form method="post" action="/check">
+      <label>Nom du client <input name="customerName" required></label>
+      <label>Âge <input type="number" name="age" required></label>
+      <label>Revenu annuel <input type="number" name="yearlyIncome" required></label>
+      <label>Score CIBIL (300-900) <input type="number" name="cibilScore" required></label>
+      <label>Mode d'emploi
+        <select name="employmentMode">
+          <option>GOV</option><option>SALARIED</option>
+          <option>SELF_EMPLOYED</option><option>UNEMPLOYED</option>
+        </select>
+      </label>
+      <button type="submit">Vérifier</button>
+    </form>
+  </section>
+
+  <section class="card" th:if="${ack}" th:classappend="${eligible} ? 'ok' : 'ko'">
+    <h2 th:text="${eligible} ? '✅ Prêt accepté' : '❌ Prêt refusé'"></h2>
+    <p>Montant approuvé : <b th:text="${#numbers.formatInteger(ack.approvedAmount,0,'WHITESPACE')}"></b></p>
+    <p>Niveau de risque : <b th:text="${ack.riskLevel}"></b></p>
+    <p th:if="${eligible}">Taux : <b th:text="${ack.interestRate} + ' %'"></b>
+       · Mensualité (60 mois) : <b th:text="${ack.monthlyPayment}"></b></p>
+    <ul th:unless="${eligible}">
+      <li th:each="c : ${ack.criteriaMismatch}" th:text="${c}"></li>
+    </ul>
+  </section>
+
+  <section class="card">
+    <h2>Simulateur de prêt</h2>
+    <form method="post" action="/simulate">
+      <label>Montant <input type="number" name="amount" value="300000" required></label>
+      <label>Taux annuel (%) <input type="number" step="0.1" name="rate" value="9.5" required></label>
+      <label>Durée (mois) <input type="number" name="months" value="36" required></label>
+      <button type="submit">Simuler</button>
+    </form>
+  </section>
+
+  <section class="card" th:if="${sim}">
+    <h2>Résultat de la simulation</h2>
+    <p>Mensualité : <b th:text="${sim.monthlyPayment}"></b> ·
+       Intérêts : <b th:text="${sim.totalInterest}"></b> ·
+       Coût total : <b th:text="${sim.totalCost}"></b></p>
+    <div class="scroll"><table>
+      <tr><th>#</th><th>Mensualité</th><th>Capital</th><th>Intérêts</th><th>Restant</th></tr>
+      <tr th:each="i : ${sim.installment}">
+        <td th:text="${i.number}"></td><td th:text="${i.payment}"></td>
+        <td th:text="${i.principal}"></td><td th:text="${i.interest}"></td>
+        <td th:text="${i.remaining}"></td>
+      </tr>
+    </table></div>
+  </section>
+
+  <section class="card">
+    <h2>Statistiques</h2>
+    <p>Demandes : <b th:text="${stats.totalRequests}"></b> ·
+       Taux d'acceptation : <b th:text="${stats.approvalRate} + ' %'"></b></p>
+    <p>Total accordé : <b th:text="${#numbers.formatInteger(stats.totalApprovedAmount,0,'WHITESPACE')}"></b></p>
+    <canvas id="chart" height="140"></canvas>
+  </section>
+
+  <section class="card">
+    <h2>Historique</h2>
+    <div class="scroll"><table>
+      <tr><th>Date</th><th>Client</th><th>Résultat</th><th>Montant</th><th>Risque</th></tr>
+      <tr th:each="h : ${history}">
+        <td th:text="${h.date}"></td>
+        <td th:text="${h.customerName}"></td>
+        <td><span class="badge" th:classappend="${h.eligible} ? 'yes' : 'no'"
+                  th:text="${h.eligible} ? 'Accepté' : 'Refusé'"></span></td>
+        <td th:text="${h.approvedAmount}"></td>
+        <td th:text="${h.riskLevel}"></td>
+      </tr>
+    </table></div>
+  </section>
+</main>
+
+<script th:inline="javascript">
+  const approved = /*[[${stats.approved}]]*/ 0;
+  const rejected = /*[[${stats.rejected}]]*/ 0;
+  new Chart(document.getElementById('chart'), {
+    type: 'doughnut',
+    data: {
+      labels: ['Acceptés', 'Refusés'],
+      datasets: [{ data: [approved, rejected], backgroundColor: ['#2e9e5b', '#d64545'] }]
+    }
+  });
+</script>
+</body>
+</html>

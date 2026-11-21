@@ -1,0 +1,108 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<xsd:schema xmlns:xsd="http://www.w3.org/2001/XMLSchema"
+    targetNamespace="http://www.example.com/soap/ws/loanEligibility"
+    xmlns:tns="http://www.example.com/soap/ws/loanEligibility"
+    elementFormDefault="qualified">
+
+  <!-- ===== Eligibilite (du TP) ===== -->
+  <xsd:element name="CustomerRequest">
+    <xsd:complexType>
+      <xsd:sequence>
+        <xsd:element name="customerName" type="xsd:string"/>
+        <xsd:element name="age" type="xsd:int"/>
+        <xsd:element name="yearlyIncome" type="xsd:long"/>
+        <xsd:element name="cibilScore" type="xsd:int"/>
+        <xsd:element name="employmentMode" type="xsd:string"/>
+      </xsd:sequence>
+    </xsd:complexType>
+  </xsd:element>
+
+  <xsd:element name="Acknowledgement">
+    <xsd:complexType>
+      <xsd:sequence>
+        <xsd:element name="isEligible" type="xsd:boolean"/>
+        <xsd:element name="approvedAmount" type="xsd:long"/>
+        <xsd:element name="CriteriaMismatch" type="xsd:string" minOccurs="0" maxOccurs="unbounded"/>
+        <xsd:element name="riskLevel" type="xsd:string" minOccurs="0"/>
+        <xsd:element name="interestRate" type="xsd:double" minOccurs="0"/>
+        <xsd:element name="monthlyPayment" type="xsd:double" minOccurs="0"/>
+      </xsd:sequence>
+    </xsd:complexType>
+  </xsd:element>
+
+  <!-- ===== Simulation de pret ===== -->
+  <xsd:complexType name="Installment">
+    <xsd:sequence>
+      <xsd:element name="number" type="xsd:int"/>
+      <xsd:element name="payment" type="xsd:double"/>
+      <xsd:element name="principal" type="xsd:double"/>
+      <xsd:element name="interest" type="xsd:double"/>
+      <xsd:element name="remaining" type="xsd:double"/>
+    </xsd:sequence>
+  </xsd:complexType>
+
+  <xsd:element name="LoanSimulationRequest">
+    <xsd:complexType>
+      <xsd:sequence>
+        <xsd:element name="amount" type="xsd:double"/>
+        <xsd:element name="annualRatePercent" type="xsd:double"/>
+        <xsd:element name="durationMonths" type="xsd:int"/>
+      </xsd:sequence>
+    </xsd:complexType>
+  </xsd:element>
+
+  <xsd:element name="LoanSimulationResponse">
+    <xsd:complexType>
+      <xsd:sequence>
+        <xsd:element name="monthlyPayment" type="xsd:double"/>
+        <xsd:element name="totalCost" type="xsd:double"/>
+        <xsd:element name="totalInterest" type="xsd:double"/>
+        <xsd:element name="installment" type="tns:Installment" maxOccurs="unbounded"/>
+      </xsd:sequence>
+    </xsd:complexType>
+  </xsd:element>
+
+  <!-- ===== Historique ===== -->
+  <xsd:complexType name="HistoryRecord">
+    <xsd:sequence>
+      <xsd:element name="customerName" type="xsd:string"/>
+      <xsd:element name="eligible" type="xsd:boolean"/>
+      <xsd:element name="approvedAmount" type="xsd:long"/>
+      <xsd:element name="riskLevel" type="xsd:string" minOccurs="0"/>
+      <xsd:element name="date" type="xsd:string"/>
+    </xsd:sequence>
+  </xsd:complexType>
+
+  <xsd:element name="LoanHistoryRequest">
+    <xsd:complexType>
+      <xsd:sequence>
+        <xsd:element name="customerName" type="xsd:string" minOccurs="0"/>
+      </xsd:sequence>
+    </xsd:complexType>
+  </xsd:element>
+
+  <xsd:element name="LoanHistoryResponse">
+    <xsd:complexType>
+      <xsd:sequence>
+        <xsd:element name="record" type="tns:HistoryRecord" minOccurs="0" maxOccurs="unbounded"/>
+      </xsd:sequence>
+    </xsd:complexType>
+  </xsd:element>
+
+  <!-- ===== Statistiques ===== -->
+  <xsd:element name="LoanStatsRequest">
+    <xsd:complexType/>
+  </xsd:element>
+
+  <xsd:element name="LoanStatsResponse">
+    <xsd:complexType>
+      <xsd:sequence>
+        <xsd:element name="totalRequests" type="xsd:int"/>
+        <xsd:element name="approved" type="xsd:int"/>
+        <xsd:element name="rejected" type="xsd:int"/>
+        <xsd:element name="approvalRate" type="xsd:double"/>
+        <xsd:element name="totalApprovedAmount" type="xsd:long"/>
+      </xsd:sequence>
+    </xsd:complexType>
+  </xsd:element>
+</xsd:schema>
