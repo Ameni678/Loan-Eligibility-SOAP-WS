@@ -58,25 +58,6 @@ It allows users to evaluate loan applications, simulate loan repayments, consult
 
 \- SoapUI
 
-\- NetBeans
-
-
-
-\## Application URLs
-
-
-
-| Endpoint | Description |
-
-|---|---|
-
-| `http://localhost:8081/` | Web interface |
-
-| `http://localhost:8081/ws/loanEligibility.wsdl` | SOAP WSDL |
-
-| `http://localhost:8081/ws` | SOAP endpoint |
-
-
 
 \## SOAP Operations
 
@@ -107,20 +88,19 @@ mvn test
 ```
 
 
+## Application Screenshots
 
-The project includes three JUnit 5 unit tests covering eligibility, multiple rejection criteria and invalid data.
+### Image 1
+![Image 1](screenshots/1.png)
 
+### Image 2
+![Image 2](screenshots/2.png)
 
+### Image 3
+![Image 3](screenshots/3.png)
 
-\## Running the Project
+### Image 4
+![Image 4](screenshots/4.png)
 
-
-
-1\. Clone the repository.
-
-2\. Open the project in NetBeans or another Java IDE.
-
-3\. Run the Spring Boot application.
-
-4\. Access the web interface 
-
+### Image 5
+![Image 5](screenshots/5.png)
